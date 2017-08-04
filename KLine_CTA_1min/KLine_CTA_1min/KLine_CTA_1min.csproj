@@ -44,8 +44,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppConfig.cs" />
-    <Compile Include="DataFileInfo.cs" />
     <Compile Include="IOHelper.cs" />
+    <Compile Include="KLineConbine.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="MainContract.cs" />
     <Compile Include="Program.cs" />

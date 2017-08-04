@@ -10,7 +10,10 @@ namespace KLine_CTA_1min
     {
         static void Main(string[] args)
         {
-            MainContract.GenerateKLineData_1MIN();
+            //MainContract.Find();
+            //KLineConbine.CopyMainContract();
+            KLineConbine.Conbine_1MIin();
+
         }
     }
 }

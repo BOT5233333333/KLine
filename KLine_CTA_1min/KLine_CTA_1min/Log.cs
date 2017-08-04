@@ -11,6 +11,13 @@ namespace KLine_CTA_1min
 {
     class Log
     {
+        Log()
+        {
+            if(!Directory.Exists("Logs"))
+            {
+                Directory.CreateDirectory("Logs");
+            }
+        }
 
         public static void AppendALLText(string contents)
         {
@@ -23,7 +30,7 @@ namespace KLine_CTA_1min
             {
                 File.AppendAllLines(@"Log.txt", contents);
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 Guid guid = Guid.NewGuid();
                 File.AppendAllLines(@"Logs\Log" +guid.ToString()+ @".txt", contents);
@@ -37,7 +44,7 @@ namespace KLine_CTA_1min
             {
                 File.AppendAllLines(path, contents);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Guid guid = Guid.NewGuid();
                 File.AppendAllLines(@"Logs\Log" + guid.ToString() + @".txt", contents);

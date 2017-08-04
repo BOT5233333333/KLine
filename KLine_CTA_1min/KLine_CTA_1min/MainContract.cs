@@ -11,7 +11,7 @@ namespace KLine_CTA_1min
     {
         private static List<string> Types = new List<string>();
         private static List<MainContract> MainContracts = new List<MainContract>();
-        public static void GenerateKLineData_1MIN()
+        public static void Find()
         {
             Types = GetTypesFromTxtFile();
             MainContracts = FindMainContract();
