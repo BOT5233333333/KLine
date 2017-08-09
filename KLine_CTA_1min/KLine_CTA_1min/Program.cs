@@ -11,9 +11,10 @@ namespace KLine_CTA_1min
         static void Main(string[] args)
         {
             //MainContract.Find();
-            //KLineConbine.CopyMainContract();
+            //执行Find()后需要手动修改输出的主力合约信息csv文件，因为其中有数据缺失的文件会导致信息表错误，需要手动修正使每天的主力合约正确
+            KLineConbine.CopyMainContract();
             KLineConbine.Conbine_1MIin();
-
+            KLineConbine.FinalProcess();
         }
     }
 }
