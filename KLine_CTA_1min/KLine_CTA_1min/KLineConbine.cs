@@ -96,7 +96,7 @@ namespace KLine_CTA_1min
             ,{new DateTime(2017,1,1,9,0,0),new DateTime(2017,1,1,10,15,0)}
             ,{new DateTime(2017,1,1,10,30,0),new DateTime(2017,1,1,11,30,0)}
             ,{new DateTime(2017,1,1,13,30,0),new DateTime(2017,1,1,15,0,0)}
-            ,{new DateTime(2017,1,1,21,0,0),new DateTime(2017,1,1,23,30,0)}};
+            ,{new DateTime(2017,1,1,21,0,0),new DateTime(2017,1,1,23,59,59,999)}};
 
         /// <summary>
         /// 根据修正后的合约信息表（AppConfig.MAIN_CONTRACT_INFO_OUTPUT_FIX_PATH）合成一分钟级数据
@@ -292,7 +292,7 @@ namespace KLine_CTA_1min
             {
                 numMin += (th.Value - th.Key).TotalMinutes;
             }
-            if(klineData.Count == numMin)
+            if(klineData.Count == Convert.ToInt16(numMin))
             {
                 return klineData;
             }
@@ -374,6 +374,12 @@ namespace KLine_CTA_1min
                             , klineData[i].closepx
                             , klineData[i++].closepx));
                         }
+                    }
+
+                    //防止死循环
+                    if(timeCursor.TimeOfDay == new TimeSpan(23,59,0))
+                    {
+                        break;
                     }
                 }
             }

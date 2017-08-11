@@ -91,14 +91,8 @@ namespace KLine_CTA_1min
             List<MainContract> mainContracts = new List<MainContract>();
 
             DirectoryInfo root = new DirectoryInfo(AppConfig.DATA_SOURCE_ROOT_DIR);
-            //Parallel.ForEach(root.GetDirectories(), monthDir =>
-            //{
-            //    Parallel.ForEach(monthDir.GetDirectories().Where(d => d.Name != "t" && d.Name != "tf" && d.Name != "if" && d.Name != "ic" && d.Name != "ih" && d.GetFiles().Length > 0), dir =>
-            //    {
 
-            //    });
-            //});
-            Parallel.ForEach(root.GetDirectories(), monthDir =>
+            foreach(var monthDir in root.GetDirectories())
             {
                 foreach (var dir in monthDir.GetDirectories().Where(d => d.Name != "t" && d.Name != "tf" && d.Name != "if" && d.Name != "ic" && d.Name != "ih" && d.GetFiles().Length > 0))
                 {
@@ -124,15 +118,22 @@ namespace KLine_CTA_1min
                             while ((line = sr2.ReadLine()) != null)
                             {
                                 string[] list = line.Split(',');
-                                DateTime dt = Convert.ToDateTime(list[2]);
-                                if (dt.TimeOfDay < new TimeSpan(15, 0, 0))
+                                try
                                 {
-                                    tq = Convert.ToUInt32(list[7]);
-                                    cName = list[1];
+                                    DateTime dt = Convert.ToDateTime(list[2]);
+                                    if (dt.TimeOfDay < new TimeSpan(15, 0, 0))
+                                    {
+                                        tq = Convert.ToUInt32(list[7]);
+                                        cName = list[1];
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
                                 }
-                                else
+                                catch
                                 {
-                                    break;
+
                                 }
                             }
 
@@ -162,7 +163,7 @@ namespace KLine_CTA_1min
                     }
 
                 }
-            });
+            }
 
             return mainContracts;
         }
