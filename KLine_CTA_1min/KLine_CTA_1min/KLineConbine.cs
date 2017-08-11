@@ -121,8 +121,10 @@ namespace KLine_CTA_1min
                     , new FileInfo(AppConfig.DATA_SOURCE_ROOT_DIR + Convert.ToDateTime(list_info[1]).ToString("yyyyMM") + "\\" + list_info[0] + "\\" + list_info[4])
                     , 0));
             }
+            fs_info.Close();
+            sr_info.Close();
 
-            Parallel.ForEach(mcs, mc =>
+            foreach (var mc in mcs)
             {
                 List<DATA_UNIT> dataList = new List<DATA_UNIT>();
 
@@ -194,8 +196,8 @@ namespace KLine_CTA_1min
                         , data.closepx));
                 }
                 File.WriteAllLines(outputDir + mc.file.Name, contents);
-                Console.WriteLine("输出完成:" + outputDir + mc.file.Name);
-            });
+                Console.WriteLine("合并完成:" + outputDir + mc.file.Name);
+            }
         }
 
         /// <summary>
