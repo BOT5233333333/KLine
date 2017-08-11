@@ -18,7 +18,7 @@ namespace KLineDbStore_Load
         private int numAllFiles;
         private static int numFilesFinish;
 
-        private string sqlOutPutPath = @"G:\KLine\KLine_sql_load2016.txt";
+        private string sqlOutPutPath = @"G:\KLine\KLine_sql_load2015.txt";
 
         //private string connStr = "Server=192.168.2.134;User ID=root;Password=123456;Database=KLineTest;CharSet=utf8";
         private string connStr = "Server=192.168.2.181;User ID=root;Password=123456;Database=CTAHisDBSPFT_K;CharSet=utf8";
