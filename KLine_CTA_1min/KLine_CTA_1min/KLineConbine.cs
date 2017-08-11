@@ -142,17 +142,25 @@ namespace KLine_CTA_1min
                         continue;
                     }
 
-                    DateTime tdatetime = Convert.ToDateTime(data[2]);
-
-                    double lastpx = Convert.ToDouble(data[3]);
-                    DateTime group = new DateTime(tdatetime.Year, tdatetime.Month, tdatetime.Day, tdatetime.Hour, tdatetime.Minute, 0);
-                    if (isInLastTransactionHour(group))
+                    try
                     {
-                        //将最后一时刻归并到其上一分钟之中
-                        group = group.AddMinutes(-1);
+                        DateTime tdatetime = Convert.ToDateTime(data[2]);
+
+                        double lastpx = Convert.ToDouble(data[3]);
+                        DateTime group = new DateTime(tdatetime.Year, tdatetime.Month, tdatetime.Day, tdatetime.Hour, tdatetime.Minute, 0);
+                        if (isInLastTransactionHour(group))
+                        {
+                            //将最后一时刻归并到其上一分钟之中
+                            group = group.AddMinutes(-1);
+                        }
+
+                        dataList.Add(new DATA_UNIT(data[0], data[1], tdatetime, lastpx, group));
+                    }
+                    catch
+                    {
+                        Log.AppendAllLines(new string[5] { "-------", "错误信息：数据异常", "出错文件：" + mc.file.FullName, "出错列：" + line, "-------", });
                     }
 
-                    dataList.Add(new DATA_UNIT(data[0], data[1], tdatetime, lastpx, group));
                 }
                 fs.Dispose();
                 sr.Dispose();

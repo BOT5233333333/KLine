@@ -9,7 +9,7 @@ namespace KLine_CTA_1min
     class AppConfig
     {
         public const string MAIN_CONTRACT_TYPES_INFO_PATH = @"G:\KLine\主力合约种类.txt";
-        public const string DATA_SOURCE_ROOT_DIR = @"G:\CTA\2015\";
+        public const string DATA_SOURCE_ROOT_DIR = @"G:\CTA\2014\";
         public const string DATA_OUTPUT_ROOT_DIR = @"G:\KLine\CTA_OUTPUT\";
         public const string DATA_FINAL_OUTPUT_ROOT_DIR = @"G:\KLine\CTA_OUTPUT_FINAL\";
         public const string MAIN_CONTRACT_INFO_OUTPUT_PATH = @"G:\KLine\主力合约.csv";
