@@ -129,7 +129,7 @@ namespace KLine_CTA_1min
                 List<DATA_UNIT> dataList = new List<DATA_UNIT>();
 
                 //默认文件中的时间是按顺序
-                FileStream fs = mc.file.OpenRead();
+               FileStream fs = mc.file.OpenRead();
                 StreamReader sr = new StreamReader(fs, Encoding.UTF8);
                 string line = null;
                 while ((line = sr.ReadLine()) != null)
