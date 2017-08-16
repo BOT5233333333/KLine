@@ -94,73 +94,59 @@ namespace KLine_CTA_1min_ic_ih_if
 
             foreach(var monthDir in root.GetDirectories())
             {
-                foreach (var dir in monthDir.GetDirectories().Where(d => d.Name != "t" && d.Name != "tf" && d.Name != "if" && d.Name != "ic" && d.Name != "ih" && d.GetFiles().Length > 0))
+                foreach (var dir in monthDir.GetDirectories().Where(d =>  (d.Name == "if" || d.Name == "ic" || d.Name == "ih") && d.GetFiles().Length > 0))
                 {
-                    FileInfo[] files = dir.GetFiles();
-                    FileStream fs = files[0].OpenRead();
-                    StreamReader sr = new StreamReader(fs, Encoding.UTF8);
-                    string[] trade = sr.ReadLine().Split(',');
-                    //如果此文件夹中第一个文件的包含了这个实例要找出的主力合约的类型的字段，则在这个文件夹中进行处理
-                    if (MainContract.Types.Exists(t => trade[1].Contains(t)))
+
+                    List<MainContract> infos = new List<MainContract>();
+                    //将一个文件夹中的所有信息都放进infos中待处理
+
+                    foreach (var file in dir.GetFiles())
                     {
-                        fs.Close();
-                        sr.Close();
-                        List<MainContract> infos = new List<MainContract>();
-                        //将一个文件夹中的所有信息都放进infos中待处理
-
-                        foreach (var file in files)
+                        FileStream fs = file.OpenRead();
+                        StreamReader sr = new StreamReader(fs, Encoding.UTF8);
+                        string line = null;
+                        UInt32 tq = 0;
+                        string cName = null;
+                        while ((line = sr.ReadLine()) != null)
                         {
-                            FileStream fs2 = file.OpenRead();
-                            StreamReader sr2 = new StreamReader(fs2, Encoding.UTF8);
-                            string line = null;
-                            UInt32 tq = 0;
-                            string cName = null;
-                            while ((line = sr2.ReadLine()) != null)
+                            string[] list = line.Split(',');
+                            try
                             {
-                                string[] list = line.Split(',');
-                                try
+                                DateTime dt = new DateTime(int.Parse(list[1].Substring(0, 4)), int.Parse(list[1].Substring(4, 2)), int.Parse(list[1].Substring(6, 2)), int.Parse(list[2].Substring(0, 2)), int.Parse(list[2].Substring(2, 2)), int.Parse(list[2].Substring(4, 2)), int.Parse(list[3]));
+                                if (dt.TimeOfDay < new TimeSpan(15, 15, 0))
                                 {
-                                    DateTime dt = Convert.ToDateTime(list[2]);
-                                    if (dt.TimeOfDay < new TimeSpan(15, 0, 0))
-                                    {
-                                        tq = Convert.ToUInt32(list[7]);
-                                        cName = list[1];
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
+                                    tq = Convert.ToUInt32(list[39]);
+                                    cName = list[0];
                                 }
-                                catch
+                                else
                                 {
-
+                                    break;
                                 }
                             }
+                            catch
+                            {
 
-                            infos.Add(new MainContract(
-                            dir.Name
-                            , new DateTime(int.Parse(file.Name.Substring(5 + dir.Name.Length, 4)), int.Parse(file.Name.Substring(9 + dir.Name.Length, 2)), int.Parse(file.Name.Substring(11 + dir.Name.Length, 2)))
-                            , file.Name.Substring(0, 4 + dir.Name.Length)
-                            , cName
-                            , file
-                            , tq));
-
-                            fs2.Close();
-                            sr2.Close();
+                            }
                         }
 
-                        //根据日期进行分组，每一组中是同一天内的不同合约
-                        foreach (var g in infos.GroupBy(item => item.date))
-                        {
-                            mainContracts.Add(g.OrderByDescending(item => item.tq).First());
-                        }
-                        Console.WriteLine("找到主力合约，" + monthDir.Name + "\\" + dir.Name);
-                    }
-                    else
-                    {
+                        infos.Add(new MainContract(
+                        dir.Name
+                        , new DateTime(int.Parse(file.Name.Substring(5 + dir.Name.Length, 4)), int.Parse(file.Name.Substring(9 + dir.Name.Length, 2)), int.Parse(file.Name.Substring(11 + dir.Name.Length, 2)))
+                        , file.Name.Substring(0, 4 + dir.Name.Length)
+                        , cName
+                        , file
+                        , tq));
+
                         fs.Close();
                         sr.Close();
                     }
+
+                    //根据日期进行分组，每一组中是同一天内的不同合约
+                    foreach (var g in infos.GroupBy(item => item.date))
+                    {
+                        mainContracts.Add(g.OrderByDescending(item => item.tq).First());
+                    }
+                    Console.WriteLine("找到主力合约，" + monthDir.Name + "\\" + dir.Name);
 
                 }
             }

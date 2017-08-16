@@ -92,11 +92,9 @@ namespace KLine_CTA_1min_ic_ih_if
         /// 一天中的交易时间,，Dictionary的key为开始时间，value为结束时间，时间必须按顺序且不交叉地初始化
         /// </summary>
         static Dictionary<DateTime, DateTime> TransactionHour = new Dictionary<DateTime, DateTime>{
-                  {new DateTime(2017,1,1,0,0,0),new DateTime(2017,1,1,2,30,0) }
-            ,{new DateTime(2017,1,1,9,0,0),new DateTime(2017,1,1,10,15,0)}
-            ,{new DateTime(2017,1,1,10,30,0),new DateTime(2017,1,1,11,30,0)}
-            ,{new DateTime(2017,1,1,13,30,0),new DateTime(2017,1,1,15,0,0)}
-            ,{new DateTime(2017,1,1,21,0,0),new DateTime(2017,1,1,23,59,59,999)}};
+            {new DateTime(2017,1,1,9,0,0),new DateTime(2017,1,1,11,30,0)}
+            ,{new DateTime(2017,1,1,13,30,0),new DateTime(2017,1,1,15,15,0) } };
+
 
         /// <summary>
         /// 根据修正后的合约信息表（AppConfig.MAIN_CONTRACT_INFO_OUTPUT_FIX_PATH）合成一分钟级数据
@@ -129,13 +127,13 @@ namespace KLine_CTA_1min_ic_ih_if
                 List<DATA_UNIT> dataList = new List<DATA_UNIT>();
 
                 //默认文件中的时间是按顺序
-               FileStream fs = mc.file.OpenRead();
+                FileStream fs = mc.file.OpenRead();
                 StreamReader sr = new StreamReader(fs, Encoding.UTF8);
                 string line = null;
                 while ((line = sr.ReadLine()) != null)
                 {
                     string[] data = line.Split(',');
-                    if (data.Length != 55)
+                    if (data.Length != 53)
                     {
                         //数据异常，输出Log
                         Log.AppendAllLines(new string[5] { "-------", "错误信息：列数错误", "出错文件：" + mc.file.FullName, "出错列：" + line, "-------", });
@@ -144,9 +142,9 @@ namespace KLine_CTA_1min_ic_ih_if
 
                     try
                     {
-                        DateTime tdatetime = Convert.ToDateTime(data[2]);
+                        DateTime tdatetime = new DateTime(int.Parse(data[1].Substring(0, 4)), int.Parse(data[1].Substring(4, 2)), int.Parse(data[1].Substring(6, 2)), int.Parse(data[2].Substring(0, 2)), int.Parse(data[2].Substring(2, 2)), int.Parse(data[2].Substring(4, 2)), int.Parse(data[3]));
 
-                        double lastpx = Convert.ToDouble(data[3]);
+                        double lastpx = Convert.ToDouble(data[4]);
                         DateTime group = new DateTime(tdatetime.Year, tdatetime.Month, tdatetime.Day, tdatetime.Hour, tdatetime.Minute, 0);
                         if (isInLastTransactionHour(group))
                         {
@@ -154,7 +152,7 @@ namespace KLine_CTA_1min_ic_ih_if
                             group = group.AddMinutes(-1);
                         }
 
-                        dataList.Add(new DATA_UNIT(data[0], data[1], tdatetime, lastpx, group));
+                        dataList.Add(new DATA_UNIT(mc.file.Name.Substring(0, 4 + mc.type.Length), data[0], tdatetime, lastpx, group));
                     }
                     catch
                     {
@@ -314,30 +312,14 @@ namespace KLine_CTA_1min_ic_ih_if
                     if (i >= klineData.Count)
                     {
                         //末尾空缺特殊处理
-                        if (timeCursor.TimeOfDay == new TimeSpan(21,0,0))
-                        {
-                            //夜盘第一项缺失
-                            klineData.Add(new DATA_KLINE
-                                (klineData.Last().contractid
-                                , klineData.Last().contractname
-                                , new DateTime(klineData.Last().tdatetime.Year, klineData.Last().tdatetime.Month, klineData.Last().tdatetime.Day, th.Key.Hour, th.Key.Minute, th.Key.Second)
-                                , -1
-                                , -1
-                                , -1
-                                , -1));
-                            Log.AppendAllLines(new string[4] { "-------", "错误信息：夜盘第一项数据缺失，夜盘数据可能整体缺失", "出错文件：" + klineData.Last().contractid+klineData.Last().tdatetime.ToString("_yyyyMMdd") + ".csv", "-------", });
-                        }
-                        else
-                        {
-                            klineData.Add(new DATA_KLINE
-                            (klineData.Last().contractid
-                            , klineData.Last().contractname
-                            , klineData.Last().tdatetime.AddMinutes(1)
-                            , klineData.Last().closepx
-                            , klineData.Last().closepx
-                            , klineData.Last().closepx
-                            , klineData.Last().closepx));
-                        }
+                        klineData.Add(new DATA_KLINE
+                        (klineData.Last().contractid
+                        , klineData.Last().contractname
+                        , klineData.Last().tdatetime.AddMinutes(1)
+                        , klineData.Last().closepx
+                        , klineData.Last().closepx
+                        , klineData.Last().closepx
+                        , klineData.Last().closepx));
                     }
                     else if (klineData[i].tdatetime.TimeOfDay!=timeCursor.TimeOfDay)
                     {
@@ -355,10 +337,11 @@ namespace KLine_CTA_1min_ic_ih_if
                                     , -1
                                     , -1
                                     , -1));
-                                Log.AppendAllLines(new string[4] { "-------", "错误信息：日盘第一项数据缺失，日盘数据可能整体缺失", "出错文件：" + klineData[i].contractid + klineData[i].tdatetime.ToString("_yyyyMMdd") + ".csv", "-------", });
+                                Log.AppendAllLines(new string[4] { "-------", "错误信息：开盘第一项数据缺失，数据可能整体缺失", "出错文件：" + klineData[i].contractid + klineData[i].tdatetime.ToString("_yyyyMMdd") + ".csv", "-------", });
                             }
                             else
                             {
+                                //下午第一项缺失
                                 klineData.Insert(i--, new DATA_KLINE
                                     (klineData[i].contractid
                                     , klineData[i].contractname
@@ -384,11 +367,6 @@ namespace KLine_CTA_1min_ic_ih_if
                         }
                     }
 
-                    //防止死循环
-                    if(timeCursor.TimeOfDay == new TimeSpan(23,59,0))
-                    {
-                        break;
-                    }
                 }
             }
 
